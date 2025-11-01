@@ -1,0 +1,17 @@
+# Cortex TUI Configuration Example
+# Copy this file to cortex-tui.toml and customize as needed
+
+[cortex-api]
+# URL of the Cortex API gateway
+url = "http://localhost:8080"
+
+# Authentication credentials (if required)
+username = ""
+password = ""
+
+# Database name (if applicable)
+database = ""
+
+[logging]
+# Logging level: debug, info, warn, error
+level = "info"
