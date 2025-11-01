@@ -17,6 +17,7 @@ type Message struct {
 	Content   string    `json:"content"`
 	Timestamp time.Time `json:"timestamp"`
 	Collapsed bool      `json:"-"` // UI state only
+	Wrapped   []string  `json:"-"` // Cached wrapped lines for rendering
 }
 
 // MessagePair represents a query-response pair

@@ -92,11 +92,11 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width = msg.Width
 		m.height = msg.Height
 		m.ready = true
-		return m, nil
+		// Don't return - let it fall through to delegate to views
 
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c", "q":
+		case "ctrl+c":
 			m.quitting = true
 			return m, tea.Quit
 
@@ -145,6 +145,11 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if len(m.messagePairs) > 0 {
 			lastIdx := len(m.messagePairs) - 1
 			m.messagePairs[lastIdx].Response = msg.response
+
+			// Trigger viewport update in QueryView after response is added
+			if m.activeTab == QueryTab && m.queryView != nil {
+				m.queryView.onResponseReceived()
+			}
 		}
 		m.loading = false
 		return m, nil

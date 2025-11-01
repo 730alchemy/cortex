@@ -75,7 +75,8 @@ See `cortex-tui.toml.example` for a complete example.
 ### Query Tab
 - `↑` / `↓`: Select project
 - `Enter`: Submit query
-- `Ctrl+K`: Toggle collapse/expand last message pair
+- `Ctrl+↑` / `Ctrl+↓`: Navigate through message history (scrolls to show selected message)
+- `Ctrl+K`: Toggle collapse/expand selected message pair
 - `Ctrl+L`: Clear chat history
 
 ### Project Tab
