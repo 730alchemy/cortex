@@ -1,0 +1,49 @@
+Refactor QueryView to Viewport-Based Architecture
+
+1. Update Message Models (internal/models/models.go)
+
+- Add Wrapped []string field to Message struct for cached wrapped lines
+- Keep existing MessagePair structure with Collapsed field
+
+2. Refactor QueryView Structure (internal/tui/query.go)
+
+- Add follow bool field to QueryView (auto-scroll to newest messages)
+- Remove selectedMessageIndex int, replace with tracking in follow mode
+- Keep chatViewport viewport.Model and ready bool
+
+3. Implement Core Helper Functions
+
+- offsetOf(pairIdx int) int - Calculate exact row offset for a message pair
+- firstVisibleRow() int - Compute from chatViewport.YOffset
+- lastVisibleRow() int - Compute from YOffset + Height
+- rewrapAll(width int) - Re-wrap all messages when terminal resizes
+- scrollToMessagePair(idx int) - Position viewport via SetYOffset()
+
+4. Rewrite renderChatContent()
+
+- Only render message pairs visible in viewport (from firstVisibleRow() to lastVisibleRow())
+- Use pre-wrapped text from Message.Wrapped instead of computing on every render
+- Show selection indicator when !follow mode
+- Calculate which message pair to highlight based on viewport position
+
+5. Update Navigation Handlers (Ctrl+Up/Down)
+
+- Ctrl+Up: Decrement cursor, set follow = false, call scrollToMessagePair()
+- Ctrl+Down: Increment cursor, call scrollToMessagePair(), if at last message set follow = true and
+GotoBottom()
+
+6. Update submitQuery()
+
+- Wrap new message text immediately using viewport width
+- If in follow mode: update cursor to last message and GotoBottom()
+
+7. Update WindowSizeMsg Handler
+
+- Call rewrapAll() with new width to recalculate all wrapped text
+- If follow = true: GotoBottom(), else: scrollToMessagePair(cursorIdx)
+
+8. Modify View() Method
+
+- Call renderChatContent() which sets viewport content with only visible messages
+- Viewport rendering stays lightweight and efficient
+
