@@ -120,6 +120,8 @@ services:
       POSTGRES_DB: marquez
       POSTGRES_USER: ${POSTGRES_USER:-cortex}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cortex}
+      MARQUEZ_USER: ${POSTGRES_USER:-cortex}
+      MARQUEZ_PASSWORD: ${POSTGRES_PASSWORD:-cortex}
     depends_on:
       postgres:
         condition: service_healthy
