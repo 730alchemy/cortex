@@ -118,10 +118,8 @@ services:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       POSTGRES_DB: marquez
-      POSTGRES_USER: ${POSTGRES_USER:-cortex}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cortex}
-      MARQUEZ_USER: ${POSTGRES_USER:-cortex}
-      MARQUEZ_PASSWORD: ${POSTGRES_PASSWORD:-cortex}
+      # Note: Marquez development config expects user 'marquez'
+      # which is created in init-postgres.sh
     depends_on:
       postgres:
         condition: service_healthy
