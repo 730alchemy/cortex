@@ -39,12 +39,12 @@ restart:
 
 reset:
 	@echo "WARNING: This will delete all data volumes!"
-	@read -p "Are you sure? [y/N] " -n 1 -r; \
+	@bash -c 'read -p "Are you sure? [y/N] " -n 1 -r; \
 	echo; \
 	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
 		cd infra && docker compose down -v; \
-		echo "All volumes deleted. Run 'make up' to start fresh."; \
-	fi
+		echo "All volumes deleted. Run '\''make up'\'' to start fresh."; \
+	fi'
 
 seed:
 	@echo "Seeding sample data into watch directory..."
