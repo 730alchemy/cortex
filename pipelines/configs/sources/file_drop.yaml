@@ -1,0 +1,23 @@
+source: file_drop
+description: Local file drop connector for batch ingestion
+
+# Watch directory configuration
+watch_directory: samples/watch/file_drop
+recursive: false  # Don't scan subdirectories
+
+# File filters
+file_extensions:
+  - .md
+  - .txt
+  - .pdf
+  - .html
+  - .json
+  - .yaml
+  - .yml
+
+# Processing configuration
+max_file_size_mb: 50
+license: internal  # Default license for ingested files
+
+# Schedule (for sensor)
+scan_interval_seconds: 30
