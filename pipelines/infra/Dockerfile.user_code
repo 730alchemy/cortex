@@ -15,11 +15,9 @@ WORKDIR /opt/dagster/app
 COPY catalog ./catalog
 COPY connectors ./connectors
 COPY orchestration ./orchestration
-COPY sdk ./sdk
 COPY configs ./configs
-COPY __init__.py ./
 
-# Expose gRPC port
+# Port to run dagster code server
 EXPOSE 4000
 
 # Healthcheck
