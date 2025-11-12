@@ -121,7 +121,8 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-cortex}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cortex}
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - cortex-network
 
