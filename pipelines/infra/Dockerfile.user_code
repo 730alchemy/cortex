@@ -9,10 +9,11 @@ WORKDIR /opt/dagster/app
 # Copy dependency files first for better layer caching
 COPY pyproject.toml pdm.lock ./
 
-# Install dependencies using PDM
-# --prod installs only production dependencies (not dev dependencies)
-# --no-self skips installing the package itself
-RUN pdm install --prod --no-self
+# Install dependencies using PDM into the system Python (no venv)
+# -g: install globally (no virtual environment)
+# --prod: only production dependencies (not dev dependencies)
+# --no-self: skip installing the package itself
+RUN pdm install -g --prod --no-self
 
 # Copy all pipeline code
 COPY catalog ./catalog
@@ -25,7 +26,7 @@ EXPOSE 4000
 
 # Healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD pdm run dagster api grpc-health-check -p 4000
+    CMD dagster api grpc-health-check -p 4000
 
 # Start code server
-CMD ["pdm", "run", "dagster", "code-server", "start", "-h", "0.0.0.0", "-p", "4000", "-m", "orchestration.definitions"]
+CMD ["dagster", "code-server", "start", "-h", "0.0.0.0", "-p", "4000", "-m", "orchestration.definitions"]
