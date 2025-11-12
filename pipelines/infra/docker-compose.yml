@@ -113,13 +113,16 @@ services:
       - "5000:5000"  # Web UI
       - "5001:5001"  # API
     environment:
+      MARQUEZ_CONFIG: /usr/src/app/marquez.yml
       MARQUEZ_PORT: 5000
       MARQUEZ_ADMIN_PORT: 5001
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       POSTGRES_DB: marquez
-      # Note: Marquez development config expects user 'marquez'
-      # which is created in init-postgres.sh
+      POSTGRES_USER: ${POSTGRES_USER:-cortex}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cortex}
+    volumes:
+      - ./marquez.yml:/usr/src/app/marquez.yml:ro
     depends_on:
       postgres:
         condition: service_healthy
