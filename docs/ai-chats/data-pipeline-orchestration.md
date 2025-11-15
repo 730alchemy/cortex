@@ -1,6 +1,6 @@
 # data-pipeline-orchestration
 
-## intro: prompt/response
+## Pros and Cons of Dagster and Prefect
 **prompt:** 
 for data pipeline orchestration, what are pros and cons, compare and contrast, of prefect and dagster
 
@@ -83,7 +83,8 @@ Here’s a direct comparison of two modern Python-native orchestration tools —
 ---
 
 If you like, I can pull together **detailed feature-by-feature matrix** (e.g., UI, deployment model, cloud vs on-prem, pricing/licensing, community size) for Prefect vs Dagster. Would that be useful?
-## changed-page-processing: prompt/response
+
+## Processing a Modified Document
 **prompt:**
 suppose we're building a pipeline that transforms wiki pages from Notion into vector embeddings. When a page is created in Notion, Notion calls a webhook that triggers a data pipeline job. The pipeline stores the Notion page in our minio object store and then continues with the data transform: chunking, embedding, persistence in a vector database. Consider the case when a page changes. Notion will call a webhook, and that webhook triggers our data pipeline. What will our data pipeline do to process a changed page (i.e. changing a page that it previously processed)?
 

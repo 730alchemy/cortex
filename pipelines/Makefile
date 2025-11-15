@@ -57,11 +57,11 @@ duckdb-shell:
 	@echo "Opening DuckDB shell..."
 	@echo "Run: .open pipelines.duckdb"
 	@echo "Then: SELECT * FROM iceberg_catalog.docs LIMIT 10;"
-	pdm run duckdb pipelines.duckdb
+	uv run duckdb pipelines.duckdb
 
 iceberg-init:
 	@echo "Initializing Iceberg catalog and tables..."
-	pdm run python -m catalog.init_iceberg
+	uv run python -m catalog.init_iceberg
 
 status:
 	@echo "Service Status:"
@@ -77,6 +77,27 @@ clean:
 	@echo "Clean complete."
 
 install:
-	@echo "Installing Python dependencies with PDM..."
-	pdm install
+	@echo "Installing Python dependencies with uv ..."
+	uv sync
 	@echo "Dependencies installed. Virtual environment ready."
+
+dagster-dev:
+	uv run dagster dev -m orchestration
+
+test:
+	uvx pytest tests/ -v
+
+lint:
+	uvx ruff check .
+
+format:
+	uvx black .
+
+typecheck:
+	uvx mypy .
+
+hide:
+	dagster-webserver = "dagster-webserver -h 0.0.0.0 -p 3000 -m orchestration"
+	dagster-daemon = "dagster-daemon run"
+	init-iceberg = "python -m catalog.init_iceberg"
+

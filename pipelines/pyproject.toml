@@ -5,8 +5,8 @@ description = "Cortex data pipeline for ingestion, transformation, and knowledge
 authors = [
     {name = "Cortex Team"}
 ]
-requires-python = ">=3.12,<3.13"
-readme = "README.md"
+requires-python = ">=3.12"
+# readme = "README.md"
 license = {text = "MIT"}
 
 dependencies = [
@@ -30,7 +30,7 @@ dependencies = [
     "psycopg2-binary>=2.9.0",
 
     # Text processing
-    "python-magic>=0.4.27",
+    "puremagic>=1.30",
     "chardet>=5.2.0",
 
     # Lineage and observability
@@ -56,23 +56,6 @@ dev = [
     "mypy>=1.8.0",
     "ipython>=8.20.0",
 ]
-
-[build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
-
-[tool.pdm]
-distribution = true
-
-[tool.pdm.scripts]
-dagster-dev = "dagster dev -m orchestration"
-dagster-webserver = "dagster-webserver -h 0.0.0.0 -p 3000 -m orchestration"
-dagster-daemon = "dagster-daemon run"
-init-iceberg = "python -m catalog.init_iceberg"
-test = "pytest tests/ -v"
-lint = "ruff check ."
-format = "black ."
-typecheck = "mypy ."
 
 [tool.black]
 line-length = 100

@@ -4,16 +4,16 @@
 storage:
   postgres:
     postgres_db:
-      username:
-        env: DAGSTER_POSTGRES_USER
-      password:
-        env: DAGSTER_POSTGRES_PASSWORD
-      hostname:
-        env: DAGSTER_POSTGRES_HOST
-      db_name:
-        env: DAGSTER_POSTGRES_DB
-      port:
-        env: DAGSTER_POSTGRES_PORT
+      username: cortex
+#        env: DAGSTER_POSTGRES_USER
+      password: cortex
+#        env: DAGSTER_POSTGRES_PASSWORD
+      hostname: localhost
+#        env: DAGSTER_POSTGRES_HOST
+      db_name: dagster
+#        env: DAGSTER_POSTGRES_DB
+      port: 5432
+#        env: DAGSTER_POSTGRES_PORT
 
 # Run coordinator
 run_coordinator:

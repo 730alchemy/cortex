@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 from typing import Iterator, Optional
-import magic
+import puremagic
 import structlog
 
 from connectors.base import Connector, FetchedItem
@@ -37,7 +37,6 @@ class FileDropConnector(Connector):
         self.source_name = source_name
         self.recursive = recursive
         self.file_extensions = file_extensions
-        self.mime_detector = magic.Magic(mime=True)
 
         if not self.watch_directory.exists():
             logger.warning(
@@ -96,7 +95,7 @@ class FileDropConnector(Connector):
 
         # Detect MIME type
         try:
-            mime_type = self.mime_detector.from_file(str(file_path))
+            mime_type = puremagic.from_file(str(file_path), mime=True)
         except Exception as e:
             logger.warning("mime_detection_failed", path=str(file_path), error=str(e))
             mime_type = "application/octet-stream"
