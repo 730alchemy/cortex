@@ -7,34 +7,40 @@ from catalog.duckdb_manager import get_duckdb_manager
 def list_tables() -> List[str]:
     """List all available Iceberg tables."""
     con = get_duckdb_manager().get_connection()
-    result = con.execute("""
+    result = con.execute(
+        """
         SELECT table_name
         FROM information_schema.tables
         WHERE table_schema = 'iceberg_catalog'
         ORDER BY table_name
-    """).fetchall()
+    """
+    ).fetchall()
     return [row[0] for row in result]
 
 
 def table_row_count(table_name: str) -> int:
     """Get row count for a table."""
     con = get_duckdb_manager().get_connection()
-    result = con.execute(f"""
+    result = con.execute(
+        f"""
         SELECT COUNT(*)
         FROM iceberg_scan('s3://warehouse/catalog/{table_name}')
-    """).fetchone()
+    """
+    ).fetchone()
     return result[0] if result else 0
 
 
 def recent_docs(limit: int = 10) -> List[Dict[str, Any]]:
     """Get most recently ingested documents."""
     con = get_duckdb_manager().get_connection()
-    result = con.execute(f"""
+    result = con.execute(
+        f"""
         SELECT doc_id, source_id, mime, size_bytes, ingest_first_at
         FROM iceberg_scan('s3://warehouse/catalog/docs')
         ORDER BY ingest_first_at DESC
         LIMIT {limit}
-    """)
+    """
+    )
 
     columns = [desc[0] for desc in result.description]
     return [dict(zip(columns, row)) for row in result.fetchall()]
@@ -43,24 +49,28 @@ def recent_docs(limit: int = 10) -> List[Dict[str, Any]]:
 def docs_by_source() -> Dict[str, int]:
     """Get document counts by source."""
     con = get_duckdb_manager().get_connection()
-    result = con.execute("""
+    result = con.execute(
+        """
         SELECT source_id, COUNT(*) as count
         FROM iceberg_scan('s3://warehouse/catalog/docs')
         GROUP BY source_id
         ORDER BY count DESC
-    """).fetchall()
+    """
+    ).fetchall()
     return {row[0]: row[1] for row in result}
 
 
 def docs_by_mime_type() -> Dict[str, int]:
     """Get document counts by MIME type."""
     con = get_duckdb_manager().get_connection()
-    result = con.execute("""
+    result = con.execute(
+        """
         SELECT mime, COUNT(*) as count
         FROM iceberg_scan('s3://warehouse/catalog/docs')
         GROUP BY mime
         ORDER BY count DESC
-    """).fetchall()
+    """
+    ).fetchall()
     return {row[0]: row[1] for row in result}
 
 
@@ -76,11 +86,13 @@ def time_travel_query(table_name: str, timestamp: str) -> List[Dict[str, Any]]:
         List of row dicts at that timestamp
     """
     con = get_duckdb_manager().get_connection()
-    result = con.execute(f"""
+    result = con.execute(
+        f"""
         SELECT *
         FROM iceberg_scan('s3://warehouse/catalog/{table_name}')
         FOR SYSTEM_TIME AS OF '{timestamp}'
-    """)
+    """
+    )
 
     columns = [desc[0] for desc in result.description]
     return [dict(zip(columns, row)) for row in result.fetchall()]
@@ -98,13 +110,16 @@ def search_docs(search_term: str, limit: int = 20) -> List[Dict[str, Any]]:
         List of matching document dicts
     """
     con = get_duckdb_manager().get_connection()
-    result = con.execute(f"""
+    result = con.execute(
+        f"""
         SELECT doc_id, source_id, mime, size_bytes, ingest_first_at
         FROM iceberg_scan('s3://warehouse/catalog/docs')
         WHERE source_id LIKE ? OR doc_id LIKE ?
         ORDER BY ingest_first_at DESC
         LIMIT {limit}
-    """, [f"%{search_term}%", f"%{search_term}%"])
+    """,
+        [f"%{search_term}%", f"%{search_term}%"],
+    )
 
     columns = [desc[0] for desc in result.description]
     return [dict(zip(columns, row)) for row in result.fetchall()]
@@ -116,7 +131,6 @@ SQL_TEMPLATES = {
         SELECT * FROM iceberg_scan('s3://warehouse/catalog/docs')
         ORDER BY ingest_first_at DESC
     """,
-
     "docs_summary": """
         SELECT
             COUNT(*) as total_docs,
@@ -126,13 +140,11 @@ SQL_TEMPLATES = {
             MAX(ingest_last_at) as last_ingest
         FROM iceberg_scan('s3://warehouse/catalog/docs')
     """,
-
     "doc_versions_for_id": """
         SELECT * FROM iceberg_scan('s3://warehouse/catalog/doc_versions')
         WHERE doc_id = ?
         ORDER BY ingest_at DESC
     """,
-
     "recent_lineage_events": """
         SELECT * FROM iceberg_scan('s3://warehouse/catalog/events_lineage')
         ORDER BY event_time DESC
@@ -153,7 +165,9 @@ def execute_template(template_name: str, params: List = None) -> List[Dict[str, 
         List of result dicts
     """
     if template_name not in SQL_TEMPLATES:
-        raise ValueError(f"Unknown template: {template_name}. Available: {list(SQL_TEMPLATES.keys())}")
+        raise ValueError(
+            f"Unknown template: {template_name}. Available: {list(SQL_TEMPLATES.keys())}"
+        )
 
     con = get_duckdb_manager().get_connection()
     sql = SQL_TEMPLATES[template_name]

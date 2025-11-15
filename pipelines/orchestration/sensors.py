@@ -25,10 +25,7 @@ def file_drop_sensor(context: SensorEvaluationContext):
     watch_dir.mkdir(parents=True, exist_ok=True)
 
     # Scan for files
-    files = [
-        f for f in watch_dir.iterdir()
-        if f.is_file() and not f.name.startswith(".")
-    ]
+    files = [f for f in watch_dir.iterdir() if f.is_file() and not f.name.startswith(".")]
 
     if not files:
         return SkipReason("No files found in watch directory")

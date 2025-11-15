@@ -39,10 +39,7 @@ class FileDropConnector(Connector):
         self.file_extensions = file_extensions
 
         if not self.watch_directory.exists():
-            logger.warning(
-                "watch_directory_not_found",
-                directory=str(self.watch_directory)
-            )
+            logger.warning("watch_directory_not_found", directory=str(self.watch_directory))
             self.watch_directory.mkdir(parents=True, exist_ok=True)
             logger.info("watch_directory_created", directory=str(self.watch_directory))
 
@@ -122,7 +119,7 @@ class FileDropConnector(Connector):
                 "file_extension": file_path.suffix,
                 "modified_at": modified_at.isoformat(),
                 "absolute_path": str(file_path.absolute()),
-            }
+            },
         )
 
     def fingerprint(self, external_id: str) -> str:

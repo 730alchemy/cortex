@@ -64,14 +64,11 @@ def ingest_file_drop(
             # Compute doc_id from content
             doc_id = connector.compute_doc_id(item.content)
 
-            context.log.info(
-                f"Processing: {item.source_id} -> doc_id: {doc_id[:16]}..."
-            )
+            context.log.info(f"Processing: {item.source_id} -> doc_id: {doc_id[:16]}...")
 
             # Check if doc already exists in catalog
             existing_docs = con.execute(
-                "SELECT doc_id FROM iceberg_catalog.docs WHERE doc_id = ?",
-                [doc_id]
+                "SELECT doc_id FROM iceberg_catalog.docs WHERE doc_id = ?", [doc_id]
             ).fetchall()
 
             now = datetime.utcnow()
@@ -98,7 +95,9 @@ def ingest_file_drop(
                     "doc_id": doc_id,
                     "mime": item.mime_type,
                     "size_bytes": item.size_bytes,
-                    "fetched_at": item.fetched_at.isoformat() if item.fetched_at else now.isoformat(),
+                    "fetched_at": (
+                        item.fetched_at.isoformat() if item.fetched_at else now.isoformat()
+                    ),
                     "url": item.url,
                     "etag": item.etag,
                     "license": item.license,
@@ -115,50 +114,53 @@ def ingest_file_drop(
                 )
 
                 # Insert into docs table via DuckDB
-                con.execute("""
+                con.execute(
+                    """
                     INSERT INTO iceberg_catalog.docs
                     (doc_id, source_id, mime, size_bytes, ingest_first_at, ingest_last_at,
                      url, license, hash_alg, dq_status)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, [
-                    doc_id,
-                    item.source_id,
-                    item.mime_type,
-                    item.size_bytes,
-                    now,
-                    now,
-                    item.url,
-                    item.license,
-                    "sha256",
-                    "pending"
-                ])
+                """,
+                    [
+                        doc_id,
+                        item.source_id,
+                        item.mime_type,
+                        item.size_bytes,
+                        now,
+                        now,
+                        item.url,
+                        item.license,
+                        "sha256",
+                        "pending",
+                    ],
+                )
 
                 context.log.info(f"✓ Ingested new document: {doc_id[:16]}...")
                 stats["ingested"] += 1
 
             else:
                 # Document exists - update last seen time
-                con.execute("""
+                con.execute(
+                    """
                     UPDATE iceberg_catalog.docs
                     SET ingest_last_at = ?
                     WHERE doc_id = ?
-                """, [now, doc_id])
+                """,
+                    [now, doc_id],
+                )
 
                 context.log.info(f"⊙ Document already exists: {doc_id[:16]}...")
                 stats["skipped"] += 1
 
             # Always record version (new or re-ingest)
-            con.execute("""
+            con.execute(
+                """
                 INSERT INTO iceberg_catalog.doc_versions
                 (doc_id, run_id, source_id, ingest_at, etag)
                 VALUES (?, ?, ?, ?, ?)
-            """, [
-                doc_id,
-                run_id,
-                item.source_id,
-                now,
-                item.etag
-            ])
+            """,
+                [doc_id, run_id, item.source_id, now, item.etag],
+            )
 
         except Exception as e:
             context.log.error(f"✗ Error processing {item.source_id}: {e}")

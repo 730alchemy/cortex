@@ -65,7 +65,8 @@ class DuckDBManager:
 
         # Configure S3 access for MinIO
         logger.info("configuring_s3_access", endpoint=self.minio_endpoint)
-        con.execute(f"""
+        con.execute(
+            f"""
             CREATE OR REPLACE SECRET minio_secret (
                 TYPE S3,
                 KEY_ID '{self.minio_access_key}',
@@ -74,7 +75,8 @@ class DuckDBManager:
                 USE_SSL false,
                 URL_STYLE 'path'
             )
-        """)
+        """
+        )
 
         logger.info("duckdb_connection_ready")
         return con

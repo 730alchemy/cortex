@@ -63,23 +63,33 @@ class PipelineClient:
         con = self.duckdb_manager.get_connection()
 
         # Use Iceberg scan via DuckDB
-        result = con.execute("""
+        result = con.execute(
+            """
             SELECT doc_id, source_id, mime, size_bytes,
                    ingest_first_at, ingest_last_at,
                    url, license, hash_alg, dq_status
             FROM iceberg_scan('s3://warehouse/catalog/docs')
             WHERE doc_id = ?
             LIMIT 1
-        """, [doc_id]).fetchone()
+        """,
+            [doc_id],
+        ).fetchone()
 
         if not result:
             return None
 
         # Convert to dict
         columns = [
-            "doc_id", "source_id", "mime", "size_bytes",
-            "ingest_first_at", "ingest_last_at",
-            "url", "license", "hash_alg", "dq_status"
+            "doc_id",
+            "source_id",
+            "mime",
+            "size_bytes",
+            "ingest_first_at",
+            "ingest_last_at",
+            "url",
+            "license",
+            "hash_alg",
+            "dq_status",
         ]
         return dict(zip(columns, result))
 
@@ -102,12 +112,7 @@ class PipelineClient:
         Yields:
             Document metadata dicts
         """
-        logger.info(
-            "iterating_docs",
-            source_id=source_id,
-            mime_type=mime_type,
-            limit=limit
-        )
+        logger.info("iterating_docs", source_id=source_id, mime_type=mime_type, limit=limit)
 
         # Build query
         query = "SELECT * FROM iceberg_scan('s3://warehouse/catalog/docs') WHERE 1=1"
@@ -179,8 +184,7 @@ class PipelineClient:
                     # Download the blob
                     logger.info("downloading_blob", key=obj["Key"])
                     response = self.s3_client.get_object(
-                        Bucket=self.data_lake_bucket,
-                        Key=obj["Key"]
+                        Bucket=self.data_lake_bucket, Key=obj["Key"]
                     )
                     return response["Body"].read()
 
@@ -223,13 +227,15 @@ class PipelineClient:
         stats = {}
 
         # Total documents
-        result = con.execute("""
+        result = con.execute(
+            """
             SELECT COUNT(*) as count,
                    SUM(size_bytes) as total_bytes,
                    MIN(ingest_first_at) as earliest_ingest,
                    MAX(ingest_last_at) as latest_ingest
             FROM iceberg_scan('s3://warehouse/catalog/docs')
-        """).fetchone()
+        """
+        ).fetchone()
 
         stats["total_docs"] = result[0]
         stats["total_bytes"] = result[1]
@@ -237,22 +243,26 @@ class PipelineClient:
         stats["latest_ingest"] = result[3]
 
         # By source
-        result = con.execute("""
+        result = con.execute(
+            """
             SELECT source_id, COUNT(*) as count
             FROM iceberg_scan('s3://warehouse/catalog/docs')
             GROUP BY source_id
             ORDER BY count DESC
-        """).fetchall()
+        """
+        ).fetchall()
 
         stats["by_source"] = {row[0]: row[1] for row in result}
 
         # By MIME type
-        result = con.execute("""
+        result = con.execute(
+            """
             SELECT mime, COUNT(*) as count
             FROM iceberg_scan('s3://warehouse/catalog/docs')
             GROUP BY mime
             ORDER BY count DESC
-        """).fetchall()
+        """
+        ).fetchall()
 
         stats["by_mime"] = {row[0]: row[1] for row in result}
 
