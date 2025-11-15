@@ -22,6 +22,9 @@ WORKDIR $DAGSTER_HOME
 # Copy Dagster configuration files
 COPY orchestration/dagster.yaml ./dagster.yaml
 COPY orchestration/workspace.yaml ./workspace.yaml
+COPY orchestration/workspace.docker.yaml ./workspace.docker.yaml
+COPY orchestration/workspace.local.yaml ./workspace.local.yaml
+COPY orchestration/workspace.hybrid.yaml ./workspace.hybrid.yaml
 
 # Expose webserver port
 #EXPOSE 3000

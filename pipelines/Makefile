@@ -1,19 +1,34 @@
 .PHONY: help up down logs restart reset seed duckdb-shell iceberg-init status clean install
+.PHONY: dev-docker dev-local dev-hybrid code-server
 
 help:
 	@echo "Cortex Data Pipeline - Make Targets"
 	@echo "===================================="
-	@echo "  up              - Start all services"
+	@echo "Infrastructure:"
+	@echo "  up              - Start all services (Docker mode)"
 	@echo "  down            - Stop all services"
 	@echo "  logs            - Tail logs from all services"
 	@echo "  restart         - Restart all services"
 	@echo "  reset           - Stop services and wipe all data volumes"
+	@echo "  status          - Show status of all services"
+	@echo ""
+	@echo "Development Modes:"
+	@echo "  dev-docker      - Run Dagster with all code in Docker"
+	@echo "  dev-local       - Run Dagster with all code locally"
+	@echo "  dev-hybrid      - Run Dagster with hybrid config (some Docker, some local)"
+	@echo "  code-server     - Start local code server on port 4000"
+	@echo ""
+	@echo "Data Operations:"
 	@echo "  seed            - Load sample data into watch directory"
 	@echo "  duckdb-shell    - Open DuckDB shell connected to Iceberg"
 	@echo "  iceberg-init    - Initialize Iceberg catalog and tables"
-	@echo "  status          - Show status of all services"
+	@echo ""
+	@echo "Development Tools:"
+	@echo "  install         - Install Python dependencies with uv"
 	@echo "  clean           - Remove temporary files and caches"
-	@echo "  install         - Install Python dependencies with PDM"
+	@echo "  test            - Run tests"
+	@echo "  lint            - Run linter"
+	@echo "  format          - Format code"
 
 up:
 	@echo "Starting all services..."
@@ -84,6 +99,51 @@ install:
 dagster-dev:
 	uv run dagster dev -m orchestration
 
+# Development modes
+dev-docker:
+	@echo "Starting Dagster with Docker workspace (all code in containers)..."
+	@echo "Using workspace: orchestration/workspace.docker.yaml"
+	@echo "Starting services with docker-compose..."
+	cd infra && docker compose up -d
+	@echo ""
+	@echo "Dagster UI: http://localhost:3000"
+	@echo "All code locations running in Docker containers"
+
+dev-local:
+	@echo "Starting Dagster with local workspace (all code runs locally)..."
+	@echo "Using workspace: orchestration/workspace.local.yaml"
+	@echo "Make sure infrastructure services are running (make up)"
+	@echo ""
+	@echo "Starting Dagster dev server..."
+	DAGSTER_HOME=$$(pwd)/orchestration uv run dagster dev -w orchestration/workspace.local.yaml
+
+dev-hybrid:
+	@echo "Starting Dagster with hybrid workspace..."
+	@echo "Using workspace: orchestration/workspace.hybrid.yaml"
+	@echo ""
+	@echo "Infrastructure services will run in Docker"
+	@echo "You can start local code servers with: make code-server"
+	@echo ""
+	cd infra && docker compose up dagster-webserver dagster-daemon postgres minio qdrant neo4j marquez -d
+	@echo ""
+	@echo "Dagster UI: http://localhost:3000"
+	@echo "Start your local code servers in separate terminals"
+
+code-server:
+	@echo "Starting local Dagster code server on port 4000..."
+	@echo "This will serve the 'orchestration' module via gRPC"
+	@echo "Configure workspace.yaml to connect to: localhost:4000"
+	@echo ""
+	DAGSTER_POSTGRES_HOST=localhost \
+	DAGSTER_POSTGRES_PORT=5432 \
+	DAGSTER_POSTGRES_DB=dagster \
+	DAGSTER_POSTGRES_USER=cortex \
+	DAGSTER_POSTGRES_PASSWORD=cortex \
+	MINIO_ENDPOINT=http://localhost:9000 \
+	MINIO_ACCESS_KEY=minio \
+	MINIO_SECRET_KEY=minio123 \
+	uv run dagster code-server start -h 0.0.0.0 -p 4000 -m orchestration.definitions
+
 test:
 	uvx pytest tests/ -v
 
@@ -95,9 +155,4 @@ format:
 
 typecheck:
 	uvx mypy .
-
-hide:
-	dagster-webserver = "dagster-webserver -h 0.0.0.0 -p 3000 -m orchestration"
-	dagster-daemon = "dagster-daemon run"
-	init-iceberg = "python -m catalog.init_iceberg"
 

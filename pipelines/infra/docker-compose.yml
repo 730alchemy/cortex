@@ -170,7 +170,10 @@ services:
       DAGSTER_CURRENT_IMAGE: cortex-dagster-user-code
     volumes:
       - dagster-data:/opt/dagster/dagster_home
-    command: dagster-webserver -h 0.0.0.0 -p 3000 -w /opt/dagster/dagster_home/workspace.yaml
+    # Support hybrid mode: allow containers to reach host machine for local code servers
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: dagster-webserver -h 0.0.0.0 -p 3000 -w /opt/dagster/dagster_home/${DAGSTER_WORKSPACE_FILE:-workspace.yaml}
     depends_on:
       postgres:
         condition: service_healthy
@@ -194,6 +197,9 @@ services:
       DAGSTER_CURRENT_IMAGE: cortex-dagster-user-code
     volumes:
       - dagster-data:/opt/dagster/dagster_home
+    # Support hybrid mode: allow containers to reach host machine for local code servers
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     command: dagster-daemon run
     restart: on-failure
     depends_on:

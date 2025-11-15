@@ -21,8 +21,8 @@ The Cortex data pipeline ingests documents from various sources, stores them in 
 
 - Docker and Docker Compose
 - Python 3.12+
-- PDM (Python package manager)
 - Make
+- uv (Python package manager)
 - LLVM and Clang (for building Python C extensions)
   ```bash
   sudo apt-get install llvm clang build-essential
@@ -32,24 +32,40 @@ The Cortex data pipeline ingests documents from various sources, stores them in 
 
 ```bash
 cd pipelines
-pdm install
+make install
 ```
 
-### 2. Start Services
+### 2. Choose Your Deployment Mode
+
+The pipeline supports three deployment modes. **For your first run, use Docker mode:**
 
 ```bash
-make up
+# Docker Mode (everything in containers - recommended for first time)
+make dev-docker
 ```
 
-This starts:
-- MinIO (object storage) - http://localhost:9001
-- PostgreSQL (Iceberg catalog) - localhost:5432
-- Dagster (orchestration) - http://localhost:3000
-- Qdrant (vector DB) - http://localhost:6333
-- Neo4j (graph DB) - http://localhost:7474
-- Marquez (lineage) - http://localhost:5000
+For other modes:
+```bash
+# Local Mode (fast iteration, hot reload)
+make dev-local
 
-### 3. Initialize Iceberg Catalog
+# Hybrid Mode (mix of Docker and local)
+make dev-hybrid
+```
+
+See **[DEPLOYMENT_MODES.md](DEPLOYMENT_MODES.md)** for detailed information on each mode.
+
+### 3. Access Services
+
+This starts:
+- Dagster UI - http://localhost:3000
+- MinIO Console - http://localhost:9001 (user: minio, pass: minio123)
+- Neo4j Browser - http://localhost:7474 (user: neo4j, pass: cortexpassword)
+- Marquez (lineage) - http://localhost:5000
+- Qdrant Dashboard - http://localhost:6333/dashboard
+- PostgreSQL - localhost:5432
+
+### 4. Initialize Iceberg Catalog
 
 ```bash
 make iceberg-init
@@ -61,7 +77,7 @@ Creates the catalog tables:
 - `catalog.doc_text_pages` - Extracted text (future)
 - `catalog.events_lineage` - Data lineage
 
-### 4. Seed Sample Data
+### 5. Seed Sample Data
 
 ```bash
 make seed
@@ -69,7 +85,7 @@ make seed
 
 Copies sample files to the watch directory. The Dagster sensor will detect them automatically.
 
-### 5. Monitor Ingestion
+### 6. Monitor Ingestion
 
 Open Dagster UI: http://localhost:3000
 

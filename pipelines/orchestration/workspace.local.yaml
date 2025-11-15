@@ -1,0 +1,6 @@
+# All projects running locally (full local development)
+load_from:
+  - python_file:
+      relative_path: definitions.py
+      location_name: cortex_pipeline
+      working_directory: /home/user/cortex/pipelines/orchestration

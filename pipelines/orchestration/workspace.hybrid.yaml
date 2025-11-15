@@ -1,0 +1,28 @@
+# Hybrid: some in Docker, some local
+# Useful when developing one project while others run in containers
+load_from:
+  # Option 1: This project running locally (via gRPC code server)
+  # Start with: make code-server
+  - grpc_server:
+      host: host.docker.internal  # Special DNS name to reach host machine
+      port: 4000
+      location_name: cortex_pipeline_local
+
+  # Option 2: This project in Docker (uncomment to use instead of Option 1)
+  # - grpc_server:
+  #     host: dagster-user-code
+  #     port: 4000
+  #     location_name: cortex_pipeline_docker
+
+  # Option 3: Another project running locally (via Python file)
+  # No gRPC server needed, loads code directly
+  # - python_file:
+  #     relative_path: ../../projectb/orchestration/definitions.py
+  #     location_name: projectb_local
+
+  # Option 4: Another project running locally (via gRPC code server on different port)
+  # Start with: cd ../projectb && make code-server (on port 4001)
+  # - grpc_server:
+  #     host: host.docker.internal
+  #     port: 4001
+  #     location_name: projectb_local

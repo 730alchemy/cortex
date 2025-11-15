@@ -1,0 +1,6 @@
+# All projects in Docker (production deployment)
+load_from:
+  - grpc_server:
+      host: dagster-user-code
+      port: 4000
+      location_name: cortex_pipeline
