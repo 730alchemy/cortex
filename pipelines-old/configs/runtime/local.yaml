@@ -1,0 +1,60 @@
+# Local development runtime configuration
+
+# Object Store (MinIO)
+object_store:
+  type: s3
+  endpoint: http://localhost:9000
+  access_key: minio
+  secret_key: minio123
+  buckets:
+    data_lake: data-lake
+    warehouse: warehouse
+  path_style_access: true
+
+# Iceberg Catalog
+iceberg:
+  catalog_type: sql
+  catalog_uri: postgresql+psycopg2://cortex:cortex@localhost:5432/catalog
+  warehouse: s3://warehouse
+  default_namespace: catalog
+
+# PostgreSQL
+postgres:
+  host: localhost
+  port: 5432
+  database: catalog
+  user: cortex
+  password: cortex
+
+# DuckDB
+duckdb:
+  db_path: pipelines.duckdb
+  enable_iceberg: true
+
+# Vector Database (Qdrant)
+qdrant:
+  host: localhost
+  port: 6333
+  grpc_port: 6334
+
+# Graph Database (Neo4j)
+neo4j:
+  uri: bolt://localhost:7687
+  user: neo4j
+  password: cortexpassword
+
+# Lineage (Marquez)
+marquez:
+  url: http://localhost:5000
+  api_url: http://localhost:5001
+
+# Dagster
+dagster:
+  webserver_host: localhost
+  webserver_port: 3000
+
+# Logging
+logging:
+  level: INFO
+  format: json
+  output: stdout
