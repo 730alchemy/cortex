@@ -1,35 +1,30 @@
-# pipelines
+# Cortext Pipelines
 
-## Getting started
+## Project Structure
 
-### Installing dependencies
+## Run Pipeline
 
-**Option 1: uv**
+### Configuration
 
-Ensure [`uv`](https://docs.astral.sh/uv/) is installed following their [official documentation](https://docs.astral.sh/uv/getting-started/installation/).
+Before running the pipeline, you need to configure environment variables:
 
-Create a virtual environment, and install the required dependencies using _sync_:
+1. **Create a `.env` file** from the example template:
+   ```bash
+   cp .env.example .env
+   ```
 
-```bash
-uv sync
-```
+2. **Set required variables** in your `.env` file:
+   - `INPUT_DIR` - The directory path that the file monitoring sensor will watch for new files
 
-Then, activate the virtual environment:
+3. **Note**: The `.env` file is gitignored and should never be committed to version control. Use `.env.example` as a template for documenting required variables.
 
-| OS | Command |
-| --- | --- |
-| MacOS | ```source .venv/bin/activate``` |
-| Windows | ```.venv\Scripts\activate``` |
-
-### Running Dagster
-
-Start the Dagster UI web server:
+### Execution
 
 ```bash
-dg dev
+uv run dagster dev
 ```
 
-Open http://localhost:3000 in your browser to see the project.
+The Dagster web app is available at http://localhost:3000 in your browser
 
 ## Learn more
 
