@@ -201,3 +201,12 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Dagster
+# Ignore local storage and logs, but keep configuration
+.dagster/.*
+.dagster/*.db
+.dagster/*.db-*
+.dagster/history/
+.dagster/logs/
+.dagster/storage/

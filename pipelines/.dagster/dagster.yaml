@@ -1,0 +1,25 @@
+# Dagster Instance Configuration
+# This file configures Dagster to use PostgreSQL for persistent storage
+
+# PostgreSQL storage configuration
+# Stores run history, event logs, asset materializations, and sensor cursors
+storage:
+  postgres:
+    postgres_db:
+      username:
+        env: DAGSTER_PG_USER
+      password:
+        env: DAGSTER_PG_PASSWORD
+      hostname:
+        env: DAGSTER_PG_HOST
+      db_name:
+        env: DAGSTER_PG_DB
+      port:
+        env: DAGSTER_PG_PORT
+
+# Compute logs storage (local filesystem)
+compute_logs:
+  module: dagster.core.storage.local_compute_log_manager
+  class: LocalComputeLogManager
+  config:
+    base_dir: .dagster/storage
