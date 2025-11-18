@@ -7,15 +7,15 @@ storage:
   postgres:
     postgres_db:
       username:
-        env: DAGSTER_PG_USER
+        env: POSTGRES_USER
       password:
-        env: DAGSTER_PG_PASSWORD
+        env: POSTGRES_PASSWORD
       hostname:
-        env: DAGSTER_PG_HOST
+        env: POSTGRES_HOST
       db_name:
         env: DAGSTER_PG_DB
       port:
-        env: DAGSTER_PG_PORT
+        env: POSTGRES_PORT
 
 # Compute logs storage (local filesystem)
 compute_logs:
