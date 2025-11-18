@@ -6,6 +6,10 @@ down:
 	@echo "Stopping all services..."
 	docker compose -f infra/docker-compose.yml down
 
+logs:
+	@echo "Stopping all services..."
+	docker compose -f infra/docker-compose.yml --env-file .env logs
+
 dev:
 	uv run dagster dev
 
