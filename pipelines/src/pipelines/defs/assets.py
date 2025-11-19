@@ -1,5 +1,6 @@
 import dagster as dg
 from .resources import MinIOResource
+from datetime import datetime
 
 
 @dg.asset
@@ -17,6 +18,7 @@ def assetsRaw(
     Each file is: {'path': str, 'hash': str}
     """
     new_files = context.op_config.get("new_files", [])
+    bucket = "datalake-dev-raw"
 
     context.log.info(
         f"Materializing assetsRaw with {len(new_files)} new/modified file(s)"
@@ -35,17 +37,12 @@ def assetsRaw(
                 f"Processing file: {file_path} (hash: {file_hash[:12]}...)"
             )
         else:
-            # Backwards compatibility with old string format
-            file_path = file_info
-            file_hash = None
-            context.log.info(f"Processing file: {file_path}")
+            print("unexpected file_info shape")
+            break
 
-        # TODO: Add your file processing logic here
-        # Example: read file, parse data, transform, etc.
-        # with open(file_path, 'r') as f:
-        #     data = f.read()
-        #     # process data...
-        minio.upload_bytes(content=b"abc", bucket="data-lake", key="llama")
+        timestamp = datetime.now().strftime("%Y%m%d")
+        key = f"source=folder/ingest_date={timestamp}/hash={file_hash}"
+        minio.upload_file(file_path, bucket, key)
 
         processed_files.append(file_path)
         if file_hash:
