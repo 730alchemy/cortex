@@ -1,4 +1,5 @@
 import dagster as dg
+from .resources import MinIOResource
 
 
 @dg.asset
@@ -6,7 +7,9 @@ def assetsR(context: dg.AssetExecutionContext) -> dg.MaterializeResult: ...
 
 
 @dg.asset(config_schema={"new_files": dg.Field(list, default_value=[])})
-def assetsRaw(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
+def assetsRaw(
+    context: dg.AssetExecutionContext, minio: MinIOResource
+) -> dg.MaterializeResult:
     """
     Asset that processes new or modified files detected by the sensor.
 
@@ -42,6 +45,7 @@ def assetsRaw(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
         # with open(file_path, 'r') as f:
         #     data = f.read()
         #     # process data...
+        minio.upload_bytes(content=b"abc", bucket="data-lake", key="llama")
 
         processed_files.append(file_path)
         if file_hash:

@@ -7,8 +7,7 @@ down:
 	docker compose -f infra/docker-compose.yml down
 
 logs:
-	@echo "Stopping all services..."
-	docker compose -f infra/docker-compose.yml --env-file .env logs
+	docker compose -f infra/docker-compose.yml logs
 
 dev:
 	uv run dagster dev
