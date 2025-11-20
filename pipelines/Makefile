@@ -23,3 +23,10 @@ lint-check:
 	uv run ruff check -e -q .
 	@echo "\nFormat check\n------------"
 	uv run ruff format --check . || true
+
+check-packages:
+	@echo "check if upgrades are available for any packages"
+	uv sync --dry-run --upgrade
+
+check-python:
+	uv run python --version

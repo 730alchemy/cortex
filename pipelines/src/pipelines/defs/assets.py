@@ -1,6 +1,8 @@
-import dagster as dg
-from .resources import MinIOResource
 from datetime import datetime
+
+import dagster as dg
+
+from .resources import MinIOResource
 
 
 @dg.asset
@@ -29,7 +31,6 @@ def assetsRaw(
     processed_hashes = []
 
     for file_info in new_files:
-        # Handle both old format (string path) and new format (dict with path/hash)
         if isinstance(file_info, dict):
             file_path = file_info["path"]
             file_hash = file_info["hash"]
@@ -37,7 +38,7 @@ def assetsRaw(
                 f"Processing file: {file_path} (hash: {file_hash[:12]}...)"
             )
         else:
-            print("unexpected file_info shape")
+            context.log.error("file_info has the wrong format")
             break
 
         timestamp = datetime.now().strftime("%Y%m%d")

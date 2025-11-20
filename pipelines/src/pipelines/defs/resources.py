@@ -1,8 +1,9 @@
-from dagster import ConfigurableResource, Definitions, definitions
-import boto3
-from pydantic import Field
-import structlog
 import os
+
+import boto3
+import structlog
+from dagster import ConfigurableResource, Definitions, definitions
+from pydantic import Field
 
 logger = structlog.get_logger("dagster-resource")
 

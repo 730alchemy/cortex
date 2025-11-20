@@ -31,4 +31,5 @@ registry_modules = [
     "pipelines.components.*",
 ]
 
-
+[tool.ruff.lint]
+select=["I"]
