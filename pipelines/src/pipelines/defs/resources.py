@@ -1,14 +1,17 @@
 import os
+from typing import cast
 
 import boto3
 import structlog
 from dagster import ConfigurableResource, Definitions, definitions
 from pydantic import Field
+from structlog.stdlib import BoundLogger
+from types_boto3_s3 import S3Client
 
-logger = structlog.get_logger("dagster-resource")
+logger: BoundLogger = structlog.stdlib.get_logger("dagster-resource")
 
 
-class MinIOResource(ConfigurableResource):
+class MinIOResource(ConfigurableResource["MinIOResource"]):
     """MinIO S3-compatible storage resource."""
 
     endpoint_url: str = os.getenv("MINIO_ENDPOINT", "http://localhost:9000")
@@ -17,13 +20,16 @@ class MinIOResource(ConfigurableResource):
     data_lake_bucket: str = Field(default="undefined-data-lake")
     warehouse_bucket: str = Field(default="undefined-warehouse")
 
-    def get_client(self):
+    def get_client(self) -> S3Client:
         """Get boto3 S3 client configured for MinIO."""
-        return boto3.client(
-            "s3",
-            endpoint_url=self.endpoint_url,
-            aws_access_key_id=self.access_key,
-            aws_secret_access_key=self.secret_key,
+        return cast(
+            S3Client,
+            boto3.client(
+                service_name="s3",
+                endpoint_url=self.endpoint_url,
+                aws_access_key_id=self.access_key,
+                aws_secret_access_key=self.secret_key,
+            ),
         )
 
     def upload_file(self, file_path: str, bucket: str, key: str) -> None:
@@ -35,8 +41,8 @@ class MinIOResource(ConfigurableResource):
 
     def upload_bytes(self, content: bytes, bucket: str, key: str) -> None:
         """Upload bytes to MinIO."""
-        client = self.get_client()
-        client.put_object(Bucket=bucket, Key=key, Body=content)
+        client: S3Client = self.get_client()
+        _ = client.put_object(Bucket=bucket, Key=key, Body=content)
         logger.info("bytes_uploaded", bucket=bucket, key=key, size=len(content))
         client.close()
 

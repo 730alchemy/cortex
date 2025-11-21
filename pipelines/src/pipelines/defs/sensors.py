@@ -1,10 +1,12 @@
 import hashlib
 import os
 from pathlib import Path
+from typing import cast
 
 import dagster as dg
 
 from .assets import assetsRaw
+from .types import FileHash, FileHashList
 
 
 def compute_file_hash(file_path: Path) -> str:
@@ -16,12 +18,14 @@ def compute_file_hash(file_path: Path) -> str:
     return sha256.hexdigest()
 
 
-@dg.sensor(
+@dg.sensor(  # pyright: ignore[reportUnknownMemberType]
     target=None,
     asset_selection=[assetsRaw],
     default_status=dg.DefaultSensorStatus.RUNNING,
 )
-def sensors(context: dg.SensorEvaluationContext) -> dg.SensorResult:
+def sensors(
+    context: dg.SensorEvaluationContext,
+) -> dg.SensorResult | dg.SkipReason | dg.RunRequest:
     """
     Sensor that monitors a directory for new or modified files based on content hashing.
 
@@ -49,7 +53,7 @@ def sensors(context: dg.SensorEvaluationContext) -> dg.SensorResult:
         return dg.SkipReason(f"Path is not a directory: {input_path}")
 
     # Get all files in directory and compute hashes
-    current_file_hashes = {}  # {hash: path}
+    current_file_hashes: FileHash = {}  # {hash: path}
     try:
         for file_path in input_path.iterdir():
             if file_path.is_file():
@@ -65,7 +69,7 @@ def sensors(context: dg.SensorEvaluationContext) -> dg.SensorResult:
 
     # Query past asset materializations to get seen hashes
     # This ensures only successfully processed files are considered "seen"
-    seen_hashes = set()
+    seen_hashes: set[str] = set()
     try:
         records = context.instance.get_event_records(
             event_records_filter=dg.EventRecordsFilter(
@@ -80,7 +84,7 @@ def sensors(context: dg.SensorEvaluationContext) -> dg.SensorResult:
                 processed_hashes_meta = materialization.metadata.get("processed_hashes")
                 if processed_hashes_meta:
                     # Extract the JSON list of hashes
-                    processed_hashes = processed_hashes_meta.value
+                    processed_hashes: str = cast(str, processed_hashes_meta.value)
                     if isinstance(processed_hashes, list):
                         seen_hashes.update(processed_hashes)
 
@@ -101,7 +105,7 @@ def sensors(context: dg.SensorEvaluationContext) -> dg.SensorResult:
         return dg.SkipReason("No new or modified files detected")
 
     # Build list of new files with their hashes
-    new_files_with_hashes = [
+    new_files_with_hashes: FileHashList = [
         {"path": current_file_hashes[h], "hash": h} for h in sorted(new_hashes)
     ]
 

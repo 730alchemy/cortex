@@ -6,6 +6,7 @@ dependencies = [
     "boto3>=1.40.75",
     "dagster>=1.12.2,<2.0.0",
     "dagster-postgres",
+    "types-boto3-lite[s3]>=1.41.0",
 ]
 
 [dependency-groups]
@@ -13,6 +14,7 @@ dev = [
     "dagster-webserver",
     "dagster-dg-cli",
     "ruff>=0.14.5",
+    "basedpyright>=1.34.0",
 ]
 
 [build-system]
